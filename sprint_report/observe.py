@@ -68,7 +68,7 @@ def team_snapshot(t):
             b = bucket(x.get("status"), x.get("category"))
             children.append({"key": x["key"], "status": x.get("status"), "category": CATEGORY.get(b, "work"),
                              "bucket": b, "assignee": x.get("assignee") or "", "created": (x.get("created") or "")[:10],
-                             "doneAt": (x.get("doneAt") or "")[:10] or None if b == "done" else None,
+                             "doneAt": ((x.get("doneAt") or "")[:10] or None) if b == "done" else None,
                              "inSprint": x["key"] in in_sprint})
         epics.append({"key": e["epicKey"], "title": (e.get("epicTitle") or "").strip(),
                       "due": (e.get("epicDue") or "")[:10] or None, "children": children})
@@ -102,7 +102,7 @@ html{background:#F2F2F5}body{padding:16px 0 24px}
 .page{width:186mm;height:auto;min-height:0;margin:0 auto 16px;padding:12mm;background:#fff;box-sizing:content-box;
 border-radius:14px;box-shadow:0 1px 2px rgba(0,0,0,.06)}.page .inner{min-height:0!important}
 </style>"""
-_SCRIPT = re.compile(r"<script>.*?</script>", re.S)
+_SCRIPT = re.compile(r"<script\b[^>]*>.*?</script>", re.S | re.I)
 
 
 def web(page):
