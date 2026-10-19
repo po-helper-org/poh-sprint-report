@@ -1,0 +1,29 @@
+{
+  "jira": {
+    "url": "https://jira.example.com",
+    "token_env": "JIRA_TOKEN",
+    "token_file": null,
+    "user_env": null,
+    "ca_bundle": null
+  },
+  "timezone": "+03:00",
+  "state_dir": "~/.local/state/sprint-report",
+  "promises_file": null,
+  "pdf": {"chrome": null},
+  "teams": [
+    {
+      "slug": "alpha",
+      "name": "Альфа",
+      "board": 123,
+      "unit": "sp",
+      "sp_field": "auto",
+      "epic_link_field": "auto",
+      "epic_due_field": "auto",
+      "subtasks": true,
+      "status_buckets": {"Ожидает релиза": "review", "Готово к тестированию": "testing"}
+    }
+  ],
+  "deliver": {
+    "matrix": {"homeserver": "https://matrix.example.com", "room_id": "!room:example.com", "token_env": "MATRIX_TOKEN"}
+  }
+}

@@ -1,0 +1,6 @@
+__pycache__/
+*.pyc
+demo-out/
+state/
+config.json
+secrets.env

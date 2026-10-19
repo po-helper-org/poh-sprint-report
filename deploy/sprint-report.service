@@ -1,0 +1,13 @@
+[Unit]
+Description=PDF-отчёт спринта: сбор из Jira → PDF → отправка
+After=network-online.target
+
+[Service]
+Type=oneshot
+WorkingDirectory=%h/Projects/poh-sprint-report
+# токены Jira и Matrix — в EnvironmentFile (600), не в конфиге и не в юните
+EnvironmentFile=%h/.config/sprint-report/secrets.env
+ExecStart=/usr/bin/python3 -m sprint_report run -c %h/.config/sprint-report/config.json --send
+MemoryMax=1500M
+CPUQuota=150%
+TimeoutStartSec=600

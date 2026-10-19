@@ -1,0 +1,30 @@
+name: ci
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python: ["3.10", "3.12"]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python }}
+      - name: Тесты
+        run: python -m unittest discover -s tests -v
+      - name: Демо-отчёт (HTML)
+        run: python -m sprint_report demo --day 2026-10-15 --html-only --out demo-out
+      - name: Демо-отчёт (PDF)
+        run: python -m sprint_report demo --day 2026-10-15 --out demo-out
+        env:
+          SPRINT_REPORT_CHROME: google-chrome
+      - uses: actions/upload-artifact@v4
+        if: matrix.python == '3.12'
+        with:
+          name: demo-report
+          path: demo-out/
