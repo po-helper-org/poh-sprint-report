@@ -25,6 +25,17 @@ python3 -m sprint_report run -c config.json   # сбор из Jira → PDF в st
 
 **Страница 2 — доска.** Команда (кольца статусов задач по людям), «Стоит дольше всего» (блок и застой на одной шкале дней), Kanban: в блоке, в работе, ревью, отладка, готово за день.
 
+## Из снимка PO-Sprint-observe — вкладка «Блокаторы»
+
+```bash
+python3 -m sprint_report observe --data <observe>/workspace/reports/sprint-report.data.json --team live > live.html
+```
+
+Тот же отчёт, но из снимка виджета PO-Sprint-observe (runner `actual-sprint`), без Jira и Chrome: HTML для экрана —
+листы A4 по центру, на узком экране масштаб по ширине (печать прежняя). Так дейлик стоит вкладкой «Блокаторы»
+в отчётах `/sprints/` рядом со «Спринтом» и «Бизнесом» и обновляется вместе с ними по «Актуализировать».
+Упрощения: в снимке нет SP — сгорание числом задач; подзадачи не берутся (`sprint_report/observe.py`).
+
 ## Подключение к Jira
 
 1. Скопируйте `config.example.json` в `config.json` и заполните `jira.url` и команды: `slug`, `name`, `board` — номер доски.
