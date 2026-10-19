@@ -8,6 +8,8 @@ scope[…], stories[{key,title,status,assignee,events[{at,kind,from,to,by,body}]
 Упрощения: оценки в SP в снимке observe нет — сгорание числом задач; подзадачи не берутся;
 «вошла в спринт» — дата без времени (00:00).
 """
+import re
+
 from . import buckets
 
 SCHEMA = 1
@@ -93,17 +95,16 @@ def snapshots(data, team=None):
     return out
 
 
-# Вид для экрана: листы A4 по центру на сером, на узком экране — масштаб по ширине (печать не меняется)
+# Вид для экрана: листы A4 по центру на сером, высота — по содержимому (печать не меняется).
+# Скриптов нет: страница встраивается под CSP «script-src 'self'», масштаб по ширине задаёт оболочка.
 WEB_CSS = """<style media="screen">
 html{background:#F2F2F5}body{padding:16px 0 24px}
-.page{width:186mm;height:auto;min-height:275mm;margin:0 auto 16px;padding:12mm;background:#fff;box-sizing:content-box;
-border-radius:14px;box-shadow:0 1px 2px rgba(0,0,0,.06)}
-@media (prefers-color-scheme:dark){html{background:#000}}
-</style>
-<script>(function(){function fit(){var w=document.documentElement.clientWidth,k=Math.min(1,(w-16)/((186+24)*96/25.4));
-document.body.style.zoom=k<1?k:'';}addEventListener('resize',fit);addEventListener('DOMContentLoaded',fit);})();</script>"""
+.page{width:186mm;height:auto;min-height:0;margin:0 auto 16px;padding:12mm;background:#fff;box-sizing:content-box;
+border-radius:14px;box-shadow:0 1px 2px rgba(0,0,0,.06)}.page .inner{min-height:0!important}
+</style>"""
+_SCRIPT = re.compile(r"<script>.*?</script>", re.S)
 
 
 def web(page):
-    """HTML отчёта для печати → тот же отчёт для показа во вкладке «Блокаторы»."""
-    return page.replace("</head>", WEB_CSS + "</head>", 1)
+    """HTML отчёта для печати → тот же отчёт для показа во вкладке «Блокаторы» (без скриптов)."""
+    return _SCRIPT.sub("", page).replace("</head>", WEB_CSS + "</head>", 1)

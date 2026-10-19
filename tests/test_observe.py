@@ -75,6 +75,7 @@ class ObserveSnapshot(unittest.TestCase):
             html = out.getvalue()
             self.assertIn('<style media="screen">', html)
             self.assertIn("Альфа", html)
+            self.assertNotIn("<script", html)                                    # встраивание под CSP без inline-скриптов
             self.assertEqual(cli.main(["observe", "--data", str(p), "--team", "beta"]), 2)
 
 
