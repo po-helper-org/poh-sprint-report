@@ -4,6 +4,7 @@
   python -m sprint_report collect -c config.json [--team SLUG] [--record DIR | --replay DIR]   снимки из Jira
   python -m sprint_report report  -c config.json [--day …] [--snapshots DIR] [--html-only]    PDF из снимков
   python -m sprint_report run     -c config.json [--day …] [--send]                            сбор + PDF (+ отправка)
+  python -m sprint_report observe --data sprint-report.data.json --team SLUG [--day …]          HTML для экрана из снимка PO-Sprint-observe
 """
 import argparse
 import datetime as dt
@@ -14,7 +15,7 @@ import sys
 from pathlib import Path
 
 from . import config as C
-from . import demo, deliver, metrics, pdf, render
+from . import demo, deliver, metrics, observe, pdf, render
 from .collect import Collector
 from .jira import Jira, JiraError
 
@@ -104,7 +105,25 @@ def main(argv=None):
             p.add_argument("--snapshots", help="каталог снимков, по умолчанию <state_dir>/<день>/snapshots")
         if name == "run":
             p.add_argument("--send", action="store_true", help="отправить по разделу deliver конфига")
+    p = sub.add_parser("observe", help="HTML команды для экрана из снимка PO-Sprint-observe (без Jira и Chrome)")
+    p.add_argument("--data", required=True, help="sprint-report.data.json виджета PO-Sprint-observe")
+    p.add_argument("--team", required=True, help="slug команды")
+    p.add_argument("--day", help="ГГГГ-ММ-ДД, по умолчанию сегодня")
+    p.add_argument("--promises", help="JSON обещаний (как promises_file)")
     a = ap.parse_args(argv)
+
+    if a.cmd == "observe":
+        day = dt.date.fromisoformat(a.day) if a.day else dt.date.today()
+        snaps = observe.snapshots(json.loads(Path(a.data).read_text(encoding="utf-8")), a.team)
+        if not snaps:
+            log(f"в снимке нет команды {a.team} со спринтом")
+            return 2
+        promises = json.loads(Path(a.promises).read_text(encoding="utf-8")) if a.promises else {}
+        model, ops = metrics.build(snaps, day, promises)
+        name = snaps[0]["team"]["name"]
+        sys.stdout.write(observe.web(pdf.with_fonts(render.render(model, ops, name))))
+        return 0
+
 
     if a.cmd == "demo":
         day = dt.date.fromisoformat(a.day) if a.day else dt.date.today()
