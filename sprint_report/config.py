@@ -37,10 +37,11 @@ def path(cfg, value, default):
 
 
 def read_secret(section, default_env):
-    """Токен из окружения или файла; нет — None."""
+    """Токен из окружения (token_env, затем имя по умолчанию) или файла; нет — None."""
     name = section.get("token_env") or default_env
-    if os.environ.get(name):
-        return os.environ[name].strip()
+    for env in (name, default_env):
+        if os.environ.get(env):
+            return os.environ[env].strip()
     f = section.get("token_file")
     if not f:
         return None
