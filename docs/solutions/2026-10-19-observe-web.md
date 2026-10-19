@@ -3,7 +3,7 @@ title: Дейлик из снимка PO-Sprint-observe — HTML для вкла
 date: 2026-10-19
 kind: feature
 area: report
-prs: []
+prs: [1]
 tags: [observe, web, csp]
 source: session
 ---
