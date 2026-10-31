@@ -219,6 +219,7 @@ def build(team, day):
         "totals": {"epics": len(epics), "stories": len(stories), "open": len(open_),
                    "inSprint": sum(1 for s in open_ if s["inSprint"]),
                    "withWarn": sum(1 for e in epics if e["warn"]), "flags": flag_count},
-        "lists": {"statuses": statuses, "priorities": prios, "people": people, "quarters": sorted(quarters)},
+        "lists": {"statuses": statuses, "priorities": prios, "people": people, "quarters": sorted(quarters),
+                  "statusBuckets": {n: _bucket(n, None, smap) for n in statuses}},
         "epics": epics,
     }

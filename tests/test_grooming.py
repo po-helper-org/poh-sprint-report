@@ -94,6 +94,7 @@ class Model(unittest.TestCase):
         self.assertEqual(m["lists"]["quarters"], ["2026Q4", "2027Q1"])
         self.assertEqual(m["lists"]["statuses"], ["Открыто", "В работе", "В ожидании", "Готово"])
         self.assertIn("Громов Кирилл", m["lists"]["people"])
+        self.assertEqual(m["lists"]["statusBuckets"], {"Открыто": "open", "В работе": "progress", "В ожидании": "blocked", "Готово": "done"})
 
     def test_quarter_of(self):
         self.assertEqual([grooming.quarter_of(x) for x in ("2026Q4-S3", "Q4 2026", "2026 q1", "спринт 12", None)],
