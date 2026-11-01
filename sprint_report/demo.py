@@ -117,3 +117,55 @@ def promises(day=None):
         {"id": "P-3", "who": "Белова Мария", "what": "Согласовать контракт API с партнёром",
          "due": (day + dt.timedelta(days=2)).isoformat()},
     ]}
+
+
+def observe_team(day=None):
+    """Команда «Альфа» в формате снимка PO-Sprint-observe (с `groom`) — для «Груминга»: каждый флаг на своём примере."""
+    day = day or dt.date.today()
+    d = lambda n: (day - dt.timedelta(days=n)).isoformat()   # noqa: E731
+
+    def item(n, title, status, category, who=None, prio="Средний", sprint=None, in_sprint=False, quarter="",
+             sp=None, updated=3, subs=(), links=(), kind="История"):
+        return {"key": f"ALF-{n}", "title": title, "type": kind, "status": status, "category": category,
+                "assignee": who, "priority": prio, "sprint": sprint, "inSprint": in_sprint, "created": d(90),
+                "doneAt": d(updated) if category == "Выполнено" else None, "sp": sp, "quarter": quarter or None,
+                "labels": [], "updated": d(updated),
+                "subtasks": [{"key": f"ALF-{n}{i}", "summary": t, "status": s, "category": c}
+                             for i, (t, s, c) in enumerate(subs, 1)],
+                "links": [{"type": t, "key": k, "status": s} for t, k, s in links]}
+
+    sprint = f"Альфа {day:%y}.{day.isocalendar()[1]:02d}"
+    work, todo, done = ("В работе", "В работе"), ("Открыто", "К выполнению"), ("Готово", "Выполнено")
+    pay = [item(501, "Списание по сохранённой карте", *work, PEOPLE[1], "Высокий", sprint, True, "2026Q4", 5,
+                subs=[("API списания", "Готово", "Выполнено"), ("Автотесты", "Готово", "Выполнено")]),
+           item(502, "Экран ошибки оплаты", *todo, None, "Средний", sprint, True, "2026Q4", 3),
+           item(503, "Возвраты по частичной оплате", "В ожидании", "В работе", PEOPLE[2], "Высокий", sprint, True,
+                "2026Q4", 8, links=[("is blocked by", "ALF-509", "Готово")]),
+           item(504, "Журнал действий оператора", *todo, None, "Низкий", None, False, "", None, updated=64),
+           item(505, "Сценарии отказа банка", *done, PEOPLE[4], "Средний", None, False, "2026Q4", 2,
+                subs=[("Описание сценариев", "Готово", "Выполнено"), ("Согласование с банком", "Открыто", "К выполнению")])]
+    cabinet = [item(510, "История заказов: фильтры", *work, None, "Средний", sprint, True, "2026Q4", 3),
+               item(511, "История заказов: пагинация", *todo, PEOPLE[5], "Средний", None, False, "2026Q4", 2,
+                    subs=[("Бэкенд", "Готово", "Выполнено"), ("Фронтенд", "Готово", "Выполнено")]),
+               item(512, "Автотесты личного кабинета", *todo, None, "Низкий", None, False, "2027Q1", None,
+                    links=[("is blocked by", "ALF-510", "В работе")])]
+    shipped = [item(520, "Миграция справочника площадок", *done, PEOPLE[3], "Высокий", sprint, False, "2026Q4", 5),
+               item(521, "Миграция расписания сеансов", *done, PEOPLE[3], "Высокий", sprint, False, "2026Q4", 5)]
+    promo = [item(530, "Генерация промокодов", *todo, None, "Средний", None, False, "", 5),
+             item(531, "Лимиты промокодов партнёра", *todo, None, "Средний", None, False, "", None, updated=45)]
+    epics = [{"epicKey": "ALF-100", "epicTitle": "Оплата в один клик", "epicPriority": "Высокий", "epicDue": d(10), "stories": [], "scope": pay},
+             {"epicKey": "ALF-101", "epicTitle": "Личный кабинет: история заказов", "epicPriority": "Средний", "epicDue": d(40), "stories": [], "scope": cabinet},
+             {"epicKey": "ALF-102", "epicTitle": "Переезд каталога на PostgreSQL", "epicPriority": "Высокий", "epicDue": d(20), "stories": [], "scope": shipped}]
+    groom = {"quarterField": "customfield_10930", "epics": [
+        {"rowId": "ALF-103", "epicKey": "ALF-103", "epicTitle": "Промокоды для партнёров", "epicPriority": None, "epicDue": None, "stories": [], "scope": promo},
+        {"rowId": "ALF-104", "epicKey": "ALF-104", "epicTitle": "Мониторинг доставки вебхуков", "epicPriority": "Низкий", "epicDue": None, "stories": [], "scope": []}],
+        "cards": {
+            "ALF-100": {"title": "Оплата в один клик", "status": "В работе", "category": "В работе", "priority": "Высокий", "assignee": PEOPLE[0], "due": d(10), "quarter": "2026Q4", "labels": [], "updated": d(1)},
+            "ALF-101": {"title": "Личный кабинет: история заказов", "status": "В работе", "category": "В работе", "priority": "Средний", "assignee": None, "due": d(40), "quarter": None, "labels": [], "updated": d(5)},
+            "ALF-102": {"title": "Переезд каталога на PostgreSQL", "status": "В работе", "category": "В работе", "priority": "Высокий", "assignee": PEOPLE[3], "due": d(20), "quarter": "2026Q4", "labels": [], "updated": d(2)},
+            "ALF-103": {"title": "Промокоды для партнёров", "status": "Открыто", "category": "К выполнению", "priority": None, "assignee": None, "due": None, "quarter": None, "labels": [], "updated": d(30)},
+            "ALF-104": {"title": "Мониторинг доставки вебхуков", "status": "Открыто", "category": "К выполнению", "priority": "Низкий", "assignee": PEOPLE[6], "due": None, "quarter": "2027Q1", "labels": [], "updated": d(70)}}}
+    return {"slug": "alpha", "team": "Альфа", "sprintName": sprint, "jiraBase": "https://jira.example.com", "boardId": 1,
+            "_meta": {"collectedAt": f"{day.isoformat()}T08:30:00+03:00"},
+            "statusMap": {"Открыто": "open", "В работе": "progress", "В ожидании": "blocked", "Готово": "done"},
+            "epics": epics, "groom": groom}

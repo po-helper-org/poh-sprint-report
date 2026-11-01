@@ -5,6 +5,7 @@
   python -m sprint_report report  -c config.json [--day …] [--snapshots DIR] [--html-only]    PDF из снимков
   python -m sprint_report run     -c config.json [--day …] [--send]                            сбор + PDF (+ отправка)
   python -m sprint_report observe --data sprint-report.data.json --team SLUG [--day …]          HTML для экрана из снимка PO-Sprint-observe
+  python -m sprint_report grooming --data sprint-report.data.json --team SLUG [--day …]         JSON вкладки «Груминг» из того же снимка
 """
 import argparse
 import datetime as dt
@@ -15,7 +16,7 @@ import sys
 from pathlib import Path
 
 from . import config as C
-from . import demo, deliver, metrics, observe, pdf, render
+from . import demo, deliver, grooming, metrics, observe, pdf, render
 from .collect import Collector
 from .jira import Jira, JiraError
 
@@ -110,7 +111,20 @@ def main(argv=None):
     p.add_argument("--team", required=True, help="slug команды")
     p.add_argument("--day", help="ГГГГ-ММ-ДД, по умолчанию сегодня")
     p.add_argument("--promises", help="JSON обещаний (как promises_file)")
+    p = sub.add_parser("grooming", help="JSON вкладки «Груминг» из снимка PO-Sprint-observe: все эпики и истории команды")
+    p.add_argument("--data", required=True, help="sprint-report.data.json виджета PO-Sprint-observe")
+    p.add_argument("--team", required=True, help="slug команды")
+    p.add_argument("--day", help="ГГГГ-ММ-ДД, по умолчанию сегодня")
     a = ap.parse_args(argv)
+
+    if a.cmd == "grooming":
+        day = dt.date.fromisoformat(a.day) if a.day else dt.date.today()
+        team = next((t for t in json.loads(Path(a.data).read_text(encoding="utf-8")) if t.get("slug") == a.team), None)
+        if not team or not (team.get("_meta") or {}).get("collectedAt"):
+            log(f"в снимке нет команды {a.team}")
+            return 2
+        json.dump(grooming.build(team, day), sys.stdout, ensure_ascii=False)
+        return 0
 
     if a.cmd == "observe":
         day = dt.date.fromisoformat(a.day) if a.day else dt.date.today()
